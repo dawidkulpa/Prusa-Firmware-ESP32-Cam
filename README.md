@@ -2,6 +2,8 @@
 
 > **Fork note.** This fork of [prusa3d/Prusa-Firmware-ESP32-Cam](https://github.com/prusa3d/Prusa-Firmware-ESP32-Cam) adds support for the **OV3660** camera on the **XIAO ESP32-S3 Sense** board. The upstream firmware 1.1.2 shows a black picture with this sensor. Details are in the [board documentation](doc/XIAO_ESP32S3/README.md#cam_modules).
 >
+> It also contains fixes that are not in the upstream firmware: reconnecting after a WiFi outage and after a boot without the network (upstream PR #146), bigger task stacks (upstream issue #145), valid HTTP headers of `/saved-photo.jpg` (upstream PR #136), and the login required for the firmware upload and the stream when the web authentication is enabled.
+>
 > **Update from cloud** reads the releases of this fork, not the upstream ones, because the upstream build would bring the black picture back. Until this fork has a release, use **Update from File**.
 >
 > The firmware was built with `arduino-cli` 1.3.1 and the versions listed below (arduino-ESP32 3.1.0, AsyncTCP 3.3.1, ESPAsyncWebServer 3.4.5, ArduinoJson 7.3.0, UniqueID 1.3.0, DHTnew 0.5.2), with `CAMERA_MODEL_XIAO_ESP32_S3_CAM` enabled in `mcu_cfg.h` and the board options from `fw_build.sh`. `fw_build.sh` itself upgrades the libraries to the latest versions, which do not build with this code.
