@@ -50,6 +50,15 @@
  */
 bool update_exif_from_cfg(const uint8_t);
 
+/**
+ * Update the camera model in the EXIF header
+ *
+ * The field has the fixed length of CAMERA_MODEL. A longer name is truncated.
+ *
+ * @param model	Name of the detected camera sensor
+ */
+void update_exif_camera_model(const char *model);
+
 #ifdef WITH_GNSS
 /**
  * Update GPS data in EXIF header

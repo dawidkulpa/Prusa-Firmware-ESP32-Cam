@@ -100,7 +100,7 @@
 
 /* ------------------ EXIF CFG ------------------*/
 #define CAMERA_MAKE                 "OmniVision"            ///< Camera make string
-#define CAMERA_MODEL                "OV2640"                ///< Camera model string
+#define CAMERA_MODEL                "OV2640"                ///< Camera model string. Default value and field length, replaced with the detected sensor name
 #define CAMERA_SOFTWARE             "Prusa ESP32-cam"       ///< Camera software string
 #define CAMERA_EXIF_ROTATION_STREAM false                   ///< enable camera exif rotation for stream
 
