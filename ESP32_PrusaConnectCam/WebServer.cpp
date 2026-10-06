@@ -1020,6 +1020,9 @@ void Server_InitWebServer_Update() {
   /* route for firmware update with file */
   server.on(
     "/upload", HTTP_POST, [](AsyncWebServerRequest* request) {
+      if (Server_CheckBasicAuth(request) == false)
+        return;
+
       String string_json = "";
       JsonDocument doc_json;
 
@@ -1042,6 +1045,11 @@ void Server_InitWebServer_Update() {
       request->send(response);
     },
     [](AsyncWebServerRequest* request, String filename, size_t index, uint8_t* data, size_t len, bool final) {
+      /* the file is received before the request handler above asks for the login. Drop it without the login */
+      if ((true == WebBasicAuth.EnableAuth) && (!request->authenticate(WebBasicAuth.UserName.c_str(), WebBasicAuth.Password.c_str()))) {
+        return;
+      }
+
       if (!index) {
         FirmwareUpdate.Processing = true;
         SystemLog.AddEvent(LogLevel_Info, F("Start FW update from file: "), filename);
@@ -1272,6 +1280,9 @@ bool Server_CheckBasicAuth(AsyncWebServerRequest* request) {
    @return void
 */
 void Server_streamJpg(AsyncWebServerRequest* request) {
+  if (Server_CheckBasicAuth(request) == false)
+    return;
+
   AsyncJpegStreamResponse* response = new AsyncJpegStreamResponse(&SystemCamera, &SystemLog);
   if (!response) {
     request->send(501);
