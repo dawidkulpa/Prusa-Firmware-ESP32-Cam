@@ -1,5 +1,11 @@
 # PrusaConnect ESP32-CAM
 
+> **Fork note.** This fork of [prusa3d/Prusa-Firmware-ESP32-Cam](https://github.com/prusa3d/Prusa-Firmware-ESP32-Cam) adds support for the **OV3660** camera on the **XIAO ESP32-S3 Sense** board. The upstream firmware 1.1.2 shows a black picture with this sensor. Details are in the [board documentation](doc/XIAO_ESP32S3/README.md#cam_modules).
+>
+> **Update from cloud** reads the releases of this fork, not the upstream ones, because the upstream build would bring the black picture back. Until this fork has a release, use **Update from File**.
+>
+> The firmware was built with `arduino-cli` 1.3.1 and the versions listed below (arduino-ESP32 3.1.0, AsyncTCP 3.3.1, ESPAsyncWebServer 3.4.5, ArduinoJson 7.3.0, UniqueID 1.3.0, DHTnew 0.5.2), with `CAMERA_MODEL_XIAO_ESP32_S3_CAM` enabled in `mcu_cfg.h` and the board options from `fw_build.sh`. `fw_build.sh` itself upgrades the libraries to the latest versions, which do not build with this code.
+
 This repository includes source code and firmware releases for the **ESP32-cam** module programmed in the **Arduino IDE**. Currently, several versions of boards built on **ESP32/ESP32S3** processors with a camera chip are supported. You can find a list of supported boards below. Additionally, for each supported board, there is a guide on how to upload the firmware, how to compile code for it, some basic information and a list of known issues for this particular board.
 
 This project uses other libraries. It is necessary to install them in the Arduino IDE:

@@ -1,7 +1,7 @@
 # Seeed Studio XIAO ESP32S3 sense cam
 
 What we need for functionality
-- XIAO ESP32-S3 Sense board with OV2640 camera module [ here ](#esp32)
+- XIAO ESP32-S3 Sense board with OV2640 or OV3660 camera module [ here ](#esp32)
 - Supported camera modules [here](#cam_modules)
 - Module board version [here](#different_mcu)
 - How to flash binary files to board from Linux/MAC/Windows [ here ](#flash_fw)
@@ -39,7 +39,7 @@ Since the camera consists of two boards and the camera part with the micro SD ca
 <a name="cam_modules"></a>
 ## Supported camera modules
 
-It's necessary to use a camera version **OV2640**. If using a different camera, modification of the camera's pinout can be needed, or some camera settings may not work correctly. We recommend to use a camera module with a viewing angle of 120° or 160°.
+It's necessary to use a camera version **OV2640** or **OV3660**. Newer XIAO ESP32-S3 Sense boards are delivered with the OV3660. If using a different camera, modification of the camera's pinout can be needed, or some camera settings may not work correctly. We recommend to use a camera module with a viewing angle of 120° or 160°.
 
 These are currently known or tested camera modules:
 
@@ -48,6 +48,13 @@ These are currently known or tested camera modules:
 | OV2640      | 66°  |    2MP     |   Yes  |  Yes  | Recommended. Standard camera module      |
 | OV2640      | 120° |    2MP     |   Yes  |  Yes  | Recommended                              |
 | OV2640      | 160° |    2MP     |   Yes  |  Yes  | Recommended                              |
+| OV3660      |  -   |    3MP     |   Yes  |  Yes  | Resolution up to 1600x1200               |
+
+Notes for the **OV3660**:
+- The automatic gain is limited by the sensor default (15.5x), not by the 2x limit used for the OV2640.
+- With **Automatic gain control** off, the gain level 0 - 30 means gain 1x - 31x.
+- The exposure time and gain level are used only when the corresponding automatic control is off.
+- The picture is flipped vertically in the firmware, so the orientation is the same as with the OV2640. Use **Vertical flip** to turn it.
 
 <a name="flash_fw"></a>
 ## How to flash binary files to board from Linux/MAC/Windows

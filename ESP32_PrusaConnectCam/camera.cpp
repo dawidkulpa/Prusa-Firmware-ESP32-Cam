@@ -300,6 +300,7 @@ void Camera::ApplyCameraCfg() {
 
   /* sensor configuration */
   sensor = esp_camera_sensor_get();
+  bool ov3660 = (OV3660_PID == sensor->id.PID);
   sensor->set_brightness(sensor, brightness);         // -2 to 2
   sensor->set_contrast(sensor, contrast);             // -2 to 2
   sensor->set_saturation(sensor, saturation);         // -2 to 2
@@ -310,16 +311,27 @@ void Camera::ApplyCameraCfg() {
   sensor->set_exposure_ctrl(sensor, exposure_ctrl);   // exposition controll 0 = disable , 1 = enable
   sensor->set_aec2(sensor, aec2);                     // enable exposition controll 0 = disable , 1 = enable
   sensor->set_ae_level(sensor, ae_level);             // automatic exposition level -2 to 2
-  sensor->set_aec_value(sensor, aec_value);           // expozition time - 0 to 1200
+
+  /* OV3660: the automatic exposure continues from the exposure time and gain registers. Gain 0 written after the sensor
+     init stops it at exposure time 0 and the picture stays black. Write the manual values only in the manual mode */
+  if ((false == ov3660) || (false == exposure_ctrl)) {
+    sensor->set_aec_value(sensor, aec_value);         // expozition time - 0 to 1200
+  }
   sensor->set_gain_ctrl(sensor, gain_ctrl);           // automatic gain controll 0 = disable , 1 = enable
-  sensor->set_agc_gain(sensor, agc_gain);             // automatic gain controll level 0 to 30
-  sensor->set_gainceiling(sensor, (gainceiling_t)0);  // maximum gain 0 to 6
+  if (false == ov3660) {
+    sensor->set_agc_gain(sensor, agc_gain);             // automatic gain controll level 0 to 30
+    sensor->set_gainceiling(sensor, (gainceiling_t)0);  // maximum gain 0 to 6
+  } else if (false == gain_ctrl) {
+    sensor->set_agc_gain(sensor, agc_gain + 1);       // OV3660: real gain, 0 = black picture. 1x to 31x
+  }
+  /* OV3660: gain ceiling is the raw gain limit and not gainceiling_t, where 0 = no gain. Keep the sensor default */
+
   sensor->set_bpc(sensor, bpc);                       // bad pixel correction 0 = disable , 1 = enable
   sensor->set_wpc(sensor, wpc);                       // white pixel correction 0 = disable , 1 = enable
   sensor->set_raw_gma(sensor, raw_gama);              // raw gama correction 0 = disable , 1 = enable
   sensor->set_lenc(sensor, lensc);                    // lens correction 0 = disable , 1 = enable
   sensor->set_hmirror(sensor, hmirror);               // horizontal mirror 0 = disable , 1 = enable
-  sensor->set_vflip(sensor, vflip);                   // vertical flip 0 = disable , 1 = enable
+  sensor->set_vflip(sensor, ov3660 ? !vflip : vflip); // vertical flip 0 = disable , 1 = enable. OV3660 is flipped vertically by default, keep the same orientation as OV2640
   sensor->set_dcw(sensor, 1);                         // 0 = disable , 1 = enable
   sensor->set_colorbar(sensor, 0);                    // external collor lines, 0 = disable , 1 = enable
 }
@@ -359,6 +371,7 @@ void Camera::GetCameraModel() {
 
   CameraType = (camera_pid_t) sensor->id.PID;
   CameraName = info->name;
+  update_exif_camera_model(info->name);
   log->AddEvent(LogLevel_Info, F("Camera type: "), String(CameraType));
   log->AddEvent(LogLevel_Info, F("Camera name: "), String(CameraName));
   log->AddEvent(LogLevel_Info, F("Camera model: "), String(info->model));

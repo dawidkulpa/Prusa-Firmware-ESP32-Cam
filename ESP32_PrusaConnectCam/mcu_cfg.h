@@ -62,7 +62,7 @@
 
 /* --------------- OTA UPDATE CFG  --------------*/
 #define OTA_UPDATE_API_SERVER       "api.github.com"        ///< OTA update server URL
-#define OTA_UPDATE_API_URL          F("/repos/prusa3d/Prusa-Firmware-ESP32-Cam/releases/latest")  ///< path to file with OTA update
+#define OTA_UPDATE_API_URL          F("/repos/dawidkulpa/Prusa-Firmware-ESP32-Cam/releases/latest")  ///< path to file with OTA update. Releases of this fork, the upstream build does not support OV3660
 
 /* ---------- RESET CFG CONFIGURATION  ----------*/
 #define CFG_RESET_TIME_WAIT         10000                   ///< wait to 10 000 ms = 10s for reset cfg during grounded CFG_RESET_PIN 
@@ -100,7 +100,7 @@
 
 /* ------------------ EXIF CFG ------------------*/
 #define CAMERA_MAKE                 "OmniVision"            ///< Camera make string
-#define CAMERA_MODEL                "OV2640"                ///< Camera model string
+#define CAMERA_MODEL                "OV2640"                ///< Camera model string. Default value and field length, replaced with the detected sensor name
 #define CAMERA_SOFTWARE             "Prusa ESP32-cam"       ///< Camera software string
 #define CAMERA_EXIF_ROTATION_STREAM false                   ///< enable camera exif rotation for stream
 
