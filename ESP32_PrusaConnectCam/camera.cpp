@@ -381,6 +381,54 @@ void Camera::GetCameraModel() {
 }
 
 /**
+   @brief Read picture data for the picture data check
+   @param void* - pointer to camera_fb_t
+   @param size_t - position in the picture data
+   @param uint8_t* - output buffer, or NULL for skipping the data
+   @param size_t - count of requested bytes
+   @return size_t - count of read bytes
+*/
+static size_t CheckPhotoDataReader(void *i_arg, size_t i_index, uint8_t *i_buf, size_t i_len) {
+  camera_fb_t *fb = (camera_fb_t *)i_arg;
+  if (i_index >= fb->len) {
+    return 0;
+  }
+
+  if (i_len > (fb->len - i_index)) {
+    i_len = fb->len - i_index;
+  }
+
+  if (i_buf != NULL) {
+    memcpy(i_buf, fb->buf + i_index, i_len);
+  }
+
+  return i_len;
+}
+
+/**
+   @brief Output of the picture data check. Decoded pixels are not needed
+   @return bool - true = continue with decoding
+*/
+static bool CheckPhotoDataWriter(void *i_arg, uint16_t i_x, uint16_t i_y, uint16_t i_w, uint16_t i_h, uint8_t *i_data) {
+  return true;
+}
+
+/**
+   @brief Check if the picture data are complete. The camera driver checks only the start and the end of the picture.
+      When a part of the data is lost between them, the rest of the picture is shifted, has wrong colors, and the end is missing.
+      The picture is decoded in the smallest scale, without output. Lost data end with a decoding error.
+   @param camera_fb_t* - picture in the JPEG format
+   @return bool - true = picture data are complete
+*/
+bool Camera::CheckPhotoData(camera_fb_t *i_fb) {
+  if ((i_fb == NULL) || (i_fb->buf == NULL) || (i_fb->format != PIXFORMAT_JPEG)) {
+    return true;
+  }
+
+  return (ESP_OK == esp_jpg_decode(i_fb->len, JPG_SCALE_8X, CheckPhotoDataReader, CheckPhotoDataWriter, i_fb));
+}
+
+/**
    @brief Capture Photo and Save it to string array
    @param none
    @return none
@@ -426,6 +474,11 @@ void Camera::CapturePhoto() {
     const int maxAttempts = 5;
     PhotoExifData.header = NULL;
     do {
+      /* the camera has only one frame buffer. Give the failed picture back before the next attempt */
+      if (attempts > 0) {
+        esp_camera_fb_return(FrameBuffer);
+      }
+
       log->AddEvent(LogLevel_Info, F("Taking photo..."));
 
       FrameBuffer = esp_camera_fb_get();
@@ -443,6 +496,11 @@ void Camera::CapturePhoto() {
 
       if (ControlFlag != 0x00) {
         log->AddEvent(LogLevel_Error, "Camera capture failed! flag: " + String(ControlFlag, HEX));
+        FrameBuffer->len = 0;
+
+      } else if (false == CheckPhotoData(FrameBuffer)) {
+        /* part of the picture data was lost in the camera driver, e.g. during a write to the FLASH memory */
+        log->AddEvent(LogLevel_Error, F("Camera capture failed! Broken picture data"));
         FrameBuffer->len = 0;
 
       } else {

@@ -85,6 +85,7 @@ private:
   Logs *log;                                ///< pointer to Logs object
 
   void InitCameraModule();
+  bool CheckPhotoData(camera_fb_t *);
 
 public:
   Camera(Configuration*, Logs*, int8_t);
